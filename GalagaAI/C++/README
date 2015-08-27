@@ -1,0 +1,9 @@
+README for c++ implementation of Galaga AI
+
+Currently still being updated.
+
+AI currently is capable of beating the first level ~50% of the time through skill (used to only win occasionally through luck)
+
+Doesn't deal with enemies crashing into it and sometimes doesn't dodge missiles.
+
+A video will be uploaded when I'm done
