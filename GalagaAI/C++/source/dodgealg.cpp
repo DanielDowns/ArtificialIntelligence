@@ -2,6 +2,13 @@
 #include "imageutilities.h"
 #include <math.h>
 
+#define DBOUT( s )            \
+{                             \
+   std::wostringstream os_;    \
+   os_ << s;                   \
+   OutputDebugStringW( os_.str().c_str() );  \
+}
+
 float point_enemy_reward(std::map<std::string, std::vector<XYposition>> pastObjects, float point){
 
 	//###DONE BUT NOT TESTED
@@ -27,10 +34,25 @@ float point_enemy_reward(std::map<std::string, std::vector<XYposition>> pastObje
 float point_threat(std::vector<Threat> threats, float point){
 
 	//###DONE BUT NOT TESTED
-
+	const float DANGER_POINT = 500;
 	const float LARGE_CONSTANT = 100;
 	float highest = 0;
+//	DBOUT("\nthreat #:");
+	int size = threats.size();
+//	DBOUT(size);
+//	DBOUT(">\n");
+
 	for (Threat threat : threats){
+
+		if (abs(threat.impactPoint - point) < 20){
+		//	if (threat.yCoord > DANGER_POINT){ 
+		//		return LARGE_CONSTANT / 3;
+		//	}
+		//	else{
+				return LARGE_CONSTANT;
+		//	}
+		}
+		/*b
 		if ((threat.xCoord <= point && point <= threat.impactPoint) || threat.xCoord >= point && point >= threat.impactPoint){
 			if (threat.timeTilImpact == 0){
 				return LARGE_CONSTANT;;
@@ -39,7 +61,7 @@ float point_threat(std::vector<Threat> threats, float point){
 			if (danger > highest){
 				highest = danger;	
 			}
-		}
+		} */
 	}
 
 	return highest;

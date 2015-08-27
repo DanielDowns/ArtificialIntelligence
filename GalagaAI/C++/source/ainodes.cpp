@@ -23,7 +23,7 @@
 
 std::map<std::string, std::vector<XYposition>> pastObjects;
 float playerPos = -1000;
-float targetPoint;
+float targetPoint = -1;
 std::string moveType = "none";
 
 std::string  MyTreeNode::execute(){
@@ -81,13 +81,13 @@ std::string dodgeNode::execute(){
 	//playerPos += 20; don't know if this happens in c++
 	pastObjects = newObjects;
 
-	if (threats.size() != 0){
+	if (threats.size() == 0){
 //		DBOUT("no threats!\n");
 		return "complete";
 	}
 
 	float maxP = -1000;
-	float threshold = -5;
+	const float THRESHOLD = -50;
 
 	std::vector<int> targetPoints;
 	const int MAX_LINE = 460;
@@ -95,8 +95,9 @@ std::string dodgeNode::execute(){
 	std::vector<int> playerLine;
 	std::vector<int> leftLine;
 	std::vector<int> rightLine;
-
-//	DBOUT("right line--");
+	DBOUT("\nplayer pos-- ");
+	DBOUT(playerPos);
+//	DBOUT("\nright line--");
 	for (int i = MIN_LINE; i <= MAX_LINE; i++){
 		playerLine.push_back(i);
 		if (i <= playerPos){
@@ -106,16 +107,35 @@ std::string dodgeNode::execute(){
 			rightLine.push_back(i);
 		}
 	}
-	//problem is after here but before other
-	std::reverse(leftLine.begin(), leftLine.end()); //problem is here
 
-	int pastPoint = -100000;
+	std::reverse(leftLine.begin(), leftLine.end()); 
+
+	bool inDanger = false;
+	const int DEFAULT = -100000;
+	int pastPoint = DEFAULT;
 	for (int point : rightLine){
 
+		//problem might be that when current position is getting shot at but areas to the 
+		//side are in danger as well. Try changing it so that if in danger, you don't worry about
+		//going past danger
+
+
+		
 		double value;
-		if (pastPoint != -100000 && pastPoint < threshold){
+		if (pastPoint != DEFAULT && (pastPoint < THRESHOLD && 
+			abs(point - playerPos) > 30 && !inDanger)){
 			value = pastPoint;
 		} 
+		else if (pastPoint != DEFAULT && (pastPoint < THRESHOLD && abs(point - playerPos) < 30)){
+			inDanger = true;
+
+			double threatVal = point_threat(threats, point);
+			double rewardVal = point_enemy_reward(pastObjects, point);
+			double distanceVal = point_distance(point, playerPos);
+			double tacticalVal = point_tactical_value(point);
+
+			value = rewardVal - threatVal - distanceVal + tacticalVal;
+		}
 		else{
 			double threatVal = point_threat(threats, point);
 			double rewardVal = point_enemy_reward(pastObjects, point);
@@ -135,13 +155,26 @@ std::string dodgeNode::execute(){
 		}
 	}
 
+	inDanger = false;
 //	DBOUT("\nleft line--");
 	targetPoints.empty();
+	pastPoint = DEFAULT;
 	for (int point : leftLine){
 
 		double value;
-		if (pastPoint != -100000 && pastPoint < threshold){
+		if (pastPoint != DEFAULT && pastPoint < THRESHOLD && 
+			abs(point - playerPos) > 30 && !inDanger){
 			value = pastPoint;
+		}
+		else if (pastPoint != DEFAULT && (pastPoint < THRESHOLD && abs(point - playerPos) < 30)){
+			inDanger = true;
+
+			double threatVal = point_threat(threats, point);
+			double rewardVal = point_enemy_reward(pastObjects, point);
+			double distanceVal = point_distance(point, playerPos);
+			double tacticalVal = point_tactical_value(point);
+
+			value = rewardVal - threatVal - distanceVal + tacticalVal;
 		}
 		else{
 			double threatVal = point_threat(threats, point);
@@ -245,18 +278,20 @@ moveNode::moveNode(SelectorNode * p){
 }
 
 std::string moveNode::execute(){
-	double dif = abs(targetPoint - playerPos);
-	if (playerPos < targetPoint && dif > 5){
-		MoveRight();
-		moveType = "right";
-	}
-	else if (targetPoint < playerPos && dif > 5){
-		MoveLeft();
-		moveType = "left";
-	}
-	else if (dif < 5 || (moveType == "right" && playerPos < targetPoint) || (moveType == "left" && playerPos > targetPoint)){
-		stopAllMovemeent();
-		moveType = "none";
+	if (targetPoint != -1){
+		double dif = abs(targetPoint - playerPos);
+		if (playerPos < targetPoint && dif > 10){
+			MoveRight();
+			moveType = "right";
+		}
+		else if (targetPoint < playerPos && dif > 10){
+			MoveLeft();
+			moveType = "left";
+		}
+		else if (dif < 10 || (moveType == "right" && playerPos < targetPoint) || (moveType == "left" && playerPos > targetPoint)){
+			stopAllMovemeent();
+			moveType = "none";
+		}
 	}
 	return "";
 }

@@ -33,7 +33,7 @@ XYposition templateMatch(cv::Mat &img, cv::Mat &mytemplate)
 	cv::Mat result(convertImg.rows - mytemplate.rows + 1, convertImg.cols - mytemplate.cols + 1,
 		CV_32FC1); //must be this result type
 
-	cv::matchTemplate(convertImg, mytemplate, result, CV_TM_CCOEFF_NORMED);
+	cv::matchTemplate(convertImg, mytemplate, result, CV_TM_CCOEFF_NORMED); //crash here
 	cv::normalize(result, result, 0, 1, cv::NORM_MINMAX, -1, cv::Mat());
 
 	double minVal; double maxVal; 

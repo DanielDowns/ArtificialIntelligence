@@ -90,6 +90,13 @@ screenPackage parseScreen(std::map<std::string, std::vector<XYposition>> pastObj
 
 	std::vector<Threat> threats = findThreats(*targetMap, pastObjects, player.Y);
 
+	for (Threat t : threats){
+		if (abs(t.impactPoint - player.X) < 20 && t.type == "missile"){
+			DBOUT("\n****IMMINENT MISSILE @");
+			DBOUT(t.impactPoint);
+		}
+	}
+
 	screenPackage package = {
 		*targetMap,
 		threats,
@@ -122,17 +129,6 @@ std::map<std::string, std::vector<XYposition>> * findTargets(cv::Mat mat, std::m
 	else {
 		threatMap->insert(std::pair<std::string, std::vector<XYposition>>(type, threats));
 	}
-
-	
-	if (type == "missile") {
-		DBOUT("Missiles (X,Y) - \n");
-		for (XYposition m : threats) {			
-			DBOUT(m.X);
-			DBOUT(" ");
-			DBOUT(m.Y);
-			DBOUT("\n");
-		}
-	}
 	
 	return threatMap;
 }
@@ -160,18 +156,22 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 
 		std::vector<XYposition> threatList = currentObjects.find(key)->second;
 		std::vector<XYposition> pastThreatList = pastObjects.find(key)->second;
- 
+
 		for (XYposition threat : threatList){
 			for (XYposition oldThreat : pastThreatList){
-				double dis = distFormu(threat.X, threat.Y, oldThreat.X, oldThreat.Y);
-				if (dis != 0 && dis < 45){
+
+				if (key == "missile"){
+
+					double slope = (threat.Y - oldThreat.Y) / (threat.X - oldThreat.X);
+					double math = (playerY - threat.Y) + (slope*threat.X);
+					double impPoint = math / slope;
 
 					double yDif = playerY - threat.Y;
 					double y = threat.Y - oldThreat.Y;
 					double time;
 					if (y != 0){
 						time = yDif / (y);
-					} 
+					}
 					else {
 						continue; //0 here means its moving sideways
 					}
@@ -180,37 +180,80 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 						continue; //positive means its going up
 					}
 
-			//		DBOUT("impact time - ");
-			//		DBOUT(time);
-			//		DBOUT("\n");
-
-					double x = threat.X - oldThreat.X;
-					double offset;
-					if (x != 0){
-						offset = time*x;
-					}
-					else {
-						offset = 0;
-					}
-
-					double pos = offset + threat.X;
-					//************NEED TO BE CHANGED TO CURRENT GAME
-					if (pos < 0 || pos > 480){
+					if (impPoint < 0 || impPoint > 480){
 						continue;
 					}
+
+		/*			DBOUT("\nslope ");
+					DBOUT(slope);
+					DBOUT("\nmath ");
+					DBOUT(math);
+					DBOUT("\npoint ");
+					DBOUT(impPoint); */
 
 					Threat info = {
 						key,
 						threat.X,
 						threat.Y,
-						pos,
+						impPoint,
 						time
 					};
+					DBOUT("\nMissile Threat - ");
+					DBOUT(info.impactPoint);
 
 					threats.push_back(info);
 				}
+				else{
+					double dis = distFormu(threat.X, threat.Y, oldThreat.X, oldThreat.Y);
+					if (dis != 0 && dis < 45){
+
+						double yDif = playerY - threat.Y;
+						double y = threat.Y - oldThreat.Y;
+						double time;
+						if (y != 0){
+							time = yDif / (y);
+						}
+						else {
+							continue; //0 here means its moving sideways
+						}
+
+						if (time < 0){
+							continue; //positive means its going up
+						}
+
+						//		DBOUT("impact time - ");
+						//		DBOUT(time);
+						//		DBOUT("\n");
+
+						double x = threat.X - oldThreat.X;
+						double offset;
+						if (x != 0){
+							offset = time*x;
+						}
+						else {
+							offset = 0;
+						}
+
+						double pos = offset + threat.X;
+						//************NEED TO BE CHANGED TO CURRENT GAME
+						if (pos < 0 || pos > 480){
+							continue;
+						}
+
+						Threat info = {
+							key,
+							threat.X,
+							threat.Y,
+							pos,
+							time
+						};
+
+						threats.push_back(info);
+					}
+				}
 			}
 		}
+
 	}
 
 	return threats;

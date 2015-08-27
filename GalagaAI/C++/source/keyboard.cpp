@@ -26,7 +26,7 @@ void MoveLeft(){
 		moveMode = "left";
 		keybd_event(VK_LEFT, 0, 0, 0);
 
-		DBOUT("moving left...\n");
+		DBOUT("\nmoving left...\n");
 	}
 }
 
@@ -39,7 +39,7 @@ void MoveRight(){
 		moveMode = "right";
 		keybd_event(VK_RIGHT, 0, 0, 0);
 
-		DBOUT("moving right...\n");
+		DBOUT("\nmoving right...\n");
 	}
 }
 
@@ -52,7 +52,7 @@ void stopAllMovemeent(){
 		keybd_event(VK_RIGHT, 0, KEYEVENTF_KEYUP, 0);
 		moveMode = "";
 	}
-	DBOUT("stopping...\n");
+	DBOUT("\nstopping...\n");
 }
 
 void fireShot(){
