@@ -12,21 +12,12 @@
 #include <iostream>
 #include <string>
 
-#define DBOUT( s )            \
-{                             \
-   std::wostringstream os_;    \
-   os_ << s;                   \
-   OutputDebugStringW( os_.str().c_str() );  \
-}
-
 //the game screen if the top of the screen
 //is flush with the browser bar
 RECT subwindow = { 410, 100, 890, 755 };
 
 XYposition templateMatch(cv::Mat &img, cv::Mat &mytemplate)
 {	
-	//DONE AND TESTED!
-
 	cv::Mat convertImg(img.rows, img.cols, CV_8UC3);
 	cv::cvtColor(img, convertImg, CV_BGRA2GRAY);
 
@@ -53,14 +44,10 @@ XYposition templateMatch(cv::Mat &img, cv::Mat &mytemplate)
 
 std::vector<XYposition> multipleTemplateMatch(cv::Mat &img, std::vector<cv::Mat> tplList){
 
-	//##### WORKING BUT NOT PERFECT. NEEDS IMPROVEMENT
-
 	std::vector<XYposition> matches;
 
 	cv::Mat convertImg(img.rows, img.cols, CV_8UC3);
 	cv::cvtColor(img, convertImg, CV_BGRA2GRAY);
-
-	//check that both are gray
 
 	double threshold = 0.8;
 
@@ -99,22 +86,12 @@ std::vector<XYposition> multipleTemplateMatch(cv::Mat &img, std::vector<cv::Mat>
 					8, 
 					0);
 
-//				cv::circle(result, maxloc, 3, CV_RGB(255, 255, 255), 3, 8);
-
-		//		cv::namedWindow("result", CV_WINDOW_AUTOSIZE);
-		//		imshow("result", result);
-		//		cv::waitKey(0);
-
 				cv::floodFill(result, 
 					maxloc, 
 					cv::Scalar(0), 
 					0, 
 					cv::Scalar(.1), 
 					cv::Scalar(1.)); 
-
-		//		cv::namedWindow("result", CV_WINDOW_AUTOSIZE);
-		//		imshow("result", result);
-		//		cv::waitKey(0);
 
 				float DIST_THRESH = 20;
 				bool tooClose = false;
@@ -142,7 +119,6 @@ std::vector<XYposition> multipleTemplateMatch(cv::Mat &img, std::vector<cv::Mat>
 }
 
 cv::Mat windowToMat(HWND hwnd){
-	//DONE AND TESTED!	
 
 	HDC hwindowDC, hwindowCompatibleDC;
 
@@ -203,12 +179,4 @@ double distFormu(double x1, double y1, double x2, double y2){
 
 	double val = sqrt(xVal + yVal);
 	return val;
-}
-
-void blackOutRect(cv::Mat result, cv::Point topLeft, cv::Point bottomRight){
-	for (int i = topLeft.y; i < bottomRight.y; i++){
-		for (int j = topLeft.x; j < bottomRight.x; j++){
-//			result.data[j][i] = 0;
-		}
-	}
 }

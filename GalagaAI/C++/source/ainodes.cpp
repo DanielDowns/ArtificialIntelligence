@@ -13,12 +13,6 @@
 #include "imageutilities.h"
 #include "keyboard.h"
 
-#define DBOUT( s )            \
-{                             \
-   std::wostringstream os_;    \
-   os_ << s;                   \
-   OutputDebugStringW( os_.str().c_str() );  \
-}
 
 
 std::map<std::string, std::vector<XYposition>> pastObjects;
@@ -76,13 +70,11 @@ std::string dodgeNode::execute(){
 	std::map<std::string, std::vector<XYposition>> newObjects = package.objects;
 	std::vector<Threat> threats = package.threats;
 	playerPos = package.playerX;
-	DBOUT("\n");
 
 	//playerPos += 20; don't know if this happens in c++
 	pastObjects = newObjects;
 
 	if (threats.size() == 0){
-//		DBOUT("no threats!\n");
 		return "complete";
 	}
 
@@ -95,9 +87,8 @@ std::string dodgeNode::execute(){
 	std::vector<int> playerLine;
 	std::vector<int> leftLine;
 	std::vector<int> rightLine;
-	DBOUT("\nplayer pos-- ");
-	DBOUT(playerPos);
-//	DBOUT("\nright line--");
+	
+
 	for (int i = MIN_LINE; i <= MAX_LINE; i++){
 		playerLine.push_back(i);
 		if (i <= playerPos){
@@ -110,16 +101,20 @@ std::string dodgeNode::execute(){
 
 	std::reverse(leftLine.begin(), leftLine.end()); 
 
+
+	bool flag = false;
+	for (Threat t : threats){
+		if (abs(t.impactPoint - playerPos) < 20 && t.type == "missile"){
+			flag = true;
+		}
+	}
+
+
 	bool inDanger = false;
 	const int DEFAULT = -100000;
 	int pastPoint = DEFAULT;
+
 	for (int point : rightLine){
-
-		//problem might be that when current position is getting shot at but areas to the 
-		//side are in danger as well. Try changing it so that if in danger, you don't worry about
-		//going past danger
-
-
 		
 		double value;
 		if (pastPoint != DEFAULT && (pastPoint < THRESHOLD && 
@@ -146,9 +141,6 @@ std::string dodgeNode::execute(){
 		}
 
 		pastPoint = value;
-//		targetPoints.push_back(value);
-//		DBOUT(value);
-//		DBOUT(" ");
 		if (value > maxP){
 			maxP = value;
 			targetPoint = point;
@@ -156,7 +148,6 @@ std::string dodgeNode::execute(){
 	}
 
 	inDanger = false;
-//	DBOUT("\nleft line--");
 	targetPoints.empty();
 	pastPoint = DEFAULT;
 	for (int point : leftLine){
@@ -186,9 +177,6 @@ std::string dodgeNode::execute(){
 		}
 
 		pastPoint = value;
-//		targetPoints.push_back(value);
-//		DBOUT(value);
-//		DBOUT(" ");
 		if (value > maxP){
 			maxP = value;
 			targetPoint = point;
@@ -210,9 +198,6 @@ fireNode::fireNode(SelectorNode * p){
 }
 
 std::string fireNode::execute(){
-
-	//###DONE BUT NOT TESTED
-
 	for (std::map<std::string, std::vector<XYposition>>::iterator iter = pastObjects.begin();
 		iter != pastObjects.end(); ++iter){
 		if (iter->first == "missile"){
@@ -381,21 +366,5 @@ void behaviorTree::runTree(){
 	while (1){
 		root->execute();
 		resetTree(root);
-	}
-}
-
-void move(){
-	while (1){
-		DBOUT("determining if move is needed...\n");
-		double dif = abs(targetPoint - playerPos);
-		if (playerPos < targetPoint && dif > 5){
-			MoveRight();
-		}
-		else if (targetPoint < playerPos && dif > 5){
-			MoveLeft();
-		}
-		else if (abs(playerPos - targetPoint) < 5){
-			stopAllMovemeent();
-		}
 	}
 }

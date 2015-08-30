@@ -10,23 +10,19 @@
 
 #define WINVER 0x0500
 
-#define DBOUT( s )            \
-{                             \
-   std::wostringstream os_;    \
-   os_ << s;                   \
-   OutputDebugStringW( os_.str().c_str() );  \
-}
-
 cv::Mat playerTemplate;
 std::vector<cv::Mat> missileTemplate;
 std::vector<cv::Mat> bossList;
 std::vector<cv::Mat> flyList;
 std::vector<cv::Mat> beeList;
 
+//1 is bee, 2 is fly, 3 is boss, 4 is everyone
+int phase = 1;
+int sweepCount = 0;
+
 int count = 0;
 
 void initialize(){
-	//DONE AND TESTED!
 
 	cv::Mat mark = cv::imread("scoreMarker.png", CV_LOAD_IMAGE_GRAYSCALE);
 
@@ -56,21 +52,13 @@ void initialize(){
 
 screenPackage parseScreen(std::map<std::string, std::vector<XYposition>> pastObjects){
 
-	//###DONE BUT NOT TESTED
-
 	HWND handle = GetForegroundWindow();
 	cv::Mat mat;
 
 	if (handle != 0){
 		mat = windowToMat(handle);
 	}
-	else {
-		DBOUT("***NO WINDOW FOUND***");
-	}
 
-//	cv::namedWindow("result", CV_WINDOW_AUTOSIZE);
-//	imshow("result", mat);
-//	cv::waitKey(0);
 
 	XYposition player = findPlayer(mat);
 
@@ -83,19 +71,48 @@ screenPackage parseScreen(std::map<std::string, std::vector<XYposition>> pastObj
 
 	std::map<std::string, std::vector<XYposition>> *targetMap = new std::map<std::string, std::vector<XYposition>>();
 
-	targetMap = findTargets(mat, targetMap, bossList, "boss");
-	targetMap = findTargets(mat, targetMap, flyList, "fly");
-	targetMap = findTargets(mat, targetMap, beeList, "bee");
+	if (phase == 3 || phase == 4){
+		targetMap = findTargets(mat, targetMap, bossList, "boss");
+		if (phase == 3 && targetMap->size() == 0){
+			sweepCount++;
+			if (sweepCount == 5){
+				phase = 4;
+				sweepCount = 0;
+			}
+		}
+		else{
+			sweepCount = 0;
+		}
+	}
+	if (phase == 2 || phase == 4){
+		targetMap = findTargets(mat, targetMap, flyList, "fly");
+		if (phase == 2 && targetMap->size() == 0){
+			sweepCount++;
+			if (sweepCount == 5){
+				phase = 3;
+				sweepCount = 0;
+			}
+		}
+		else{
+			sweepCount = 0;
+		}
+	}
+	if (phase == 1 || phase == 4){
+		targetMap = findTargets(mat, targetMap, beeList, "bee");
+		if (phase == 1 && targetMap->size() == 0){
+			sweepCount++;
+			if (sweepCount == 5){
+				phase = 2;
+				sweepCount = 0;
+			}
+		}
+		else{
+			sweepCount = 0;
+		}
+	}
 	targetMap = findTargets(mat, targetMap, missileTemplate, "missile");
 
 	std::vector<Threat> threats = findThreats(*targetMap, pastObjects, player.Y);
-
-	for (Threat t : threats){
-		if (abs(t.impactPoint - player.X) < 20 && t.type == "missile"){
-			DBOUT("\n****IMMINENT MISSILE @");
-			DBOUT(t.impactPoint);
-		}
-	}
 
 	screenPackage package = {
 		*targetMap,
@@ -107,16 +124,12 @@ screenPackage parseScreen(std::map<std::string, std::vector<XYposition>> pastObj
 }
 
 XYposition findPlayer(cv::Mat mat){
-	//DONE AND TESTED!
-
 	XYposition val = templateMatch(mat, playerTemplate);
 	return val;
 }
 
 std::map<std::string, std::vector<XYposition>> * findTargets(cv::Mat mat, std::map<std::string, std::vector<XYposition>> *threatMap,
 		std::vector<cv::Mat> threatList, std::string type){
-
-	//###DONE BUT NOT TESTED
 
 	std::vector<XYposition> threats = multipleTemplateMatch(mat, threatList);
 	
@@ -136,12 +149,9 @@ std::map<std::string, std::vector<XYposition>> * findTargets(cv::Mat mat, std::m
 std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> currentObjects,
 	std::map<std::string, std::vector<XYposition>> pastObjects, double playerY){
 
-	//###DONE BUT NOT TESTED
-
-
 	std::vector<Threat> threats;
 	if (pastObjects.size() == 0){
-		return threats; //might need to be initialized
+		return threats; 
 	}
 
 	//iter returns a pair pointer
@@ -162,7 +172,11 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 
 				if (key == "missile"){
 
-					double slope = (threat.Y - oldThreat.Y) / (threat.X - oldThreat.X);
+					double denom = (threat.X - oldThreat.X);
+					if (denom == 0){
+						denom = .0001;
+					}
+					double slope = (threat.Y - oldThreat.Y) / denom;
 					double math = (playerY - threat.Y) + (slope*threat.X);
 					double impPoint = math / slope;
 
@@ -184,13 +198,6 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 						continue;
 					}
 
-		/*			DBOUT("\nslope ");
-					DBOUT(slope);
-					DBOUT("\nmath ");
-					DBOUT(math);
-					DBOUT("\npoint ");
-					DBOUT(impPoint); */
-
 					Threat info = {
 						key,
 						threat.X,
@@ -198,8 +205,6 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 						impPoint,
 						time
 					};
-					DBOUT("\nMissile Threat - ");
-					DBOUT(info.impactPoint);
 
 					threats.push_back(info);
 				}
@@ -221,9 +226,6 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 							continue; //positive means its going up
 						}
 
-						//		DBOUT("impact time - ");
-						//		DBOUT(time);
-						//		DBOUT("\n");
 
 						double x = threat.X - oldThreat.X;
 						double offset;
@@ -235,7 +237,9 @@ std::vector<Threat> findThreats(std::map<std::string, std::vector<XYposition>> c
 						}
 
 						double pos = offset + threat.X;
-						//************NEED TO BE CHANGED TO CURRENT GAME
+						
+						//magic numbers are player line pulled from
+						//measuring game
 						if (pos < 0 || pos > 480){
 							continue;
 						}
