@@ -1,9 +1,18 @@
 README for c++ implementation of Galaga AI
 
-Currently still being updated.
+This is the greatly improved version of the Python AI I developed. Several major changes were added as a 
+part of the C++ part that helped with the performance of the AI:
 
-AI currently is capable of beating the first level ~50% of the time through skill (used to only win occasionally through luck)
+   -AI never writes to or reads from disk outside of initialization
+   -the image of the game used is smaller, meaning less work
+   -value-of-hypothetical-position algorithm used to dodge and pick targets has been improved
+   
+The AI is definitely not perfect though:
 
-Doesn't deal with enemies crashing into it and sometimes doesn't dodge missiles.
-
-A video will be uploaded when I'm done
+  -AI doesn't account for kamakaize ships
+  -threat of missiles is sometimes overestimated, leading to an incorrect "hopeless" situation. This causes the AI
+      to not dodge an avoidable threat
+      
+At this point, I'm declaring this project done. It's definitely not perfect, but this was an educational project meant to 
+introduce me to AI and make sure that my intial Python AI was correct. I didn't want to hide behind "Python is too slow but
+I know I'm right", I wanted to prove I was right. I was and I am now moving on to a new AI project.  
