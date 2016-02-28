@@ -62,7 +62,6 @@ dodgeNode::dodgeNode(SelectorNode * p){
 } 
 
 std::string dodgeNode::execute(){
-	//###DONE BUT NOT TESTED
 
 	std::map<std::string, std::vector<XYposition>> objects = pastObjects;
 	screenPackage package = parseScreen(objects);
@@ -71,7 +70,6 @@ std::string dodgeNode::execute(){
 	std::vector<Threat> threats = package.threats;
 	playerPos = package.playerX;
 
-	//playerPos += 20; don't know if this happens in c++
 	pastObjects = newObjects;
 
 	if (threats.size() == 0){
@@ -225,10 +223,7 @@ adjustNode::adjustNode(SelectorNode * p){
 
 std::string adjustNode::execute(){
 
-	//###DONE BUT NOT TESTED
-
 	std::map<std::string, std::vector<XYposition>> objects = pastObjects;
-	//playerPos += 20; dont know if c++ needs this
 
 	float min = 1000000;
 	XYposition lock = { -1000, -1000 };
