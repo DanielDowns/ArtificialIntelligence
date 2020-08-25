@@ -1,0 +1,65 @@
+TensorBot is a machine learning based Rocket League bot built using Behavioral Cloning (aka 
+Imitation Learning).
+
+It uses recorded play data from the Diablo bot to build a neural net that maps the current game
+state to the best controller actions. 24 state values get fed into the network and 7 controller 
+outputs are pulled out and given to rlbot to control the bot.
+
+
+
+bot.py - core TensorBot file
+botNN.py - neural net model
+exampleRecorder.py - example snippit recording State/Action data
+prepTrainingData.py - clean raw data and move to new location
+trainTensorBot.py - train and save model
+
+
+
+
+
+--Where can I find the data you recorded?
+
+Message me (@Soren) on the rlbot discord or send me a discord pm. I'll link the data set since its too big
+to transfer via normal methods.
+
+
+
+--How can I generate my own recording? 
+
+Take a look at the exampleRecorder.py file I put in the repo, specifically get_output() and __init__().
+It shows how to instruct a bot to open a new file, write the data you need to, and in what order. 
+Then its just a matter of letting the bot play as long as you need. You'll probably need at least
+3 to 4 gigs to train the network. I recommend letting them play while you sleep.
+
+
+
+--How do I prep the data recorded?
+
+Modify the prepTrainingData.py to have the paths you want and then run it. It will spit out data
+that trainTensorBot.py expects. 
+
+
+
+--Can I use replays from calculated.gg instead of these recordings?
+
+Probably not. Caculated.gg doesn’t provide what the controller actions are during the match, 
+which is an essential part of Behavioral Cloning. You can try estimating what those actions 
+would be or using Behavioral Cloning from Observation but I have no idea how to do either of those.
+
+
+
+--Can’t I just generate recordings of a better bot or get them from a pro player and make an
+even stronger version of TensorBot?
+
+You can definitely try! However, Behavioral Cloning seems to have difficulties with successfully 
+imitating highly dexterous behavior such as dribbling and precise jumps, which many higher-level 
+bots and players rely on to win. 
+
+
+
+--What if I try to train on recordings of several decent bots together? Will they fuse into a
+perfect storm of Kamael-destroying power?
+
+I strongly suspect that doing this will just end up with a confused bot trying to blindly stitch
+together different strategies. However you can still try, especially if you think you have ways
+to focus on the strengths of each agent.
