@@ -13,11 +13,7 @@ randNum = random.randint(0,9999999999)
 
 class diabloBot(BaseAgent):
     def __init__(self, name, team, index):
-        Game.set_mode("soccar")
-        self.game = Game(index, team)
-        self.time = 0
         self.index = index
-        self.name = name
         self.team = team
         self.writeFile = open(DIRECTORY_LOCATION+"diabloLog"+str(self.team)+"-"+str(randNum), "w")
 
@@ -124,6 +120,7 @@ class diabloBot(BaseAgent):
         
         
         ## WRITE ACTION
+        action = CONTROLLER OBJECT
         self.writeFile.write(str(action.throttle)+";"+str(action.steer)+";"+str(action.pitch)+";"+str(action.yaw)+";"+str(action.roll)+";"+str(action.jump)+";"+str(action.boost))
         self.writeFile.write("\n")
         ##*****************************************************
