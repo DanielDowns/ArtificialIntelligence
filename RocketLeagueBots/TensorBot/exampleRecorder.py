@@ -120,7 +120,7 @@ class diabloBot(BaseAgent):
         
         
         ## WRITE ACTION
-        action = CONTROLLER OBJECT
+        action = GET_THE_CONTROLLER_GAME_OBJECT_THE_BOT_IS_USING_AND_PUT_IT_HERE
         self.writeFile.write(str(action.throttle)+";"+str(action.steer)+";"+str(action.pitch)+";"+str(action.yaw)+";"+str(action.roll)+";"+str(action.jump)+";"+str(action.boost))
         self.writeFile.write("\n")
         ##*****************************************************
