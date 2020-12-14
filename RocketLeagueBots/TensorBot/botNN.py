@@ -7,13 +7,6 @@ class botNN:
     def __init__(self, inputSize):
         self.inSize = inputSize
 
-
-#working ideas: 
-#ignore angular velocity as input
-#is 512->128 a bottleneck?
-#training data choices (Kamael vs Rookie, etc)
-#running with GUI open vs minimized
-#---seems to be roughly the same? 
         
     def buildModel(self):
         lrelu = lambda x: tf.keras.activations.relu(x, alpha=0.1)
@@ -46,7 +39,6 @@ class botNN:
     
         opt = keras.optimizers.Adam(learning_rate=0.001)
         
-        #*****loss will probably need to be weighted
         model.compile(optimizer=opt, 
             loss=['mse', 'mse', 'binary_crossentropy', 'binary_crossentropy'], 
             metrics=['accuracy', 'mse', 'binary_crossentropy'])

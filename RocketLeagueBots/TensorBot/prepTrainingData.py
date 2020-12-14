@@ -75,7 +75,7 @@ def listToCsv(list):
 for file in files:
     name = file.split(".")[0]
     print("parsing file "+str(name))
-    file = directoryString + file
+    file = directoryString + "\\" + file
     fileSize = os.stat(file).st_size
     
     states = []

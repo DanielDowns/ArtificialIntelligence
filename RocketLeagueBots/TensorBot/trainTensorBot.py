@@ -60,7 +60,7 @@ for (dirpath, dirnames, filenames) in walk(cleanedDirectoryString):
 
 filePaths = []
 for fileName in files:
-    filePaths.append(cleanedDirectoryString + fileName)
+    filePaths.append(cleanedDirectoryString + "\\" + fileName)
 #i have tried shuffling files. It does not seem to work :(
 
 debugCounter = 0

@@ -31,6 +31,9 @@ It shows how to instruct a bot to open a new file, write the data you need to, a
 Then its just a matter of letting the bot play as long as you need. You'll probably need at least
 3 to 4 gigs to train the network. I recommend letting them play while you sleep.
 
+Its easiest to choose a bot already in the botpack as an expert. Open its source files, and add in the code
+shown in exampleRecorder.py
+
 
 
 --How do I prep the data recorded?
